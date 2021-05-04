@@ -1,5 +1,5 @@
 {
-  "name": "quocamserver",
+  "name": "cs-social-server",
   "version": "1.0.0",
   "description": "A social network for cs tech",
   "main": "src/server.ts",
