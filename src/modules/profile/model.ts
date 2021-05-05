@@ -93,8 +93,51 @@ const ProfileSchema = new mongoose.Schema({
   },
   date: {
     type: Date,
-    default: Date.now
+    default: Date.now,
   },
+  followings: [
+    {
+      user: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "user",
+      },
+    },
+  ],
+  followers: [
+    {
+      user: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "user",
+      },
+    },
+  ],
+  friends: [
+    {
+      user: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'user',
+      },
+      date: {
+        type: Date,
+        default: Date.now,
+      },
+    },
+  ],
+  friend_requests: [
+    {
+      user: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'user',
+      },
+      date: {
+        type: Date,
+        default: Date.now,
+      },
+    },
+  ],
 });
 
-export default mongoose.model<IProfile & mongoose.Document>("profile", ProfileSchema);
+export default mongoose.model<IProfile & mongoose.Document>(
+  "profile",
+  ProfileSchema
+);
