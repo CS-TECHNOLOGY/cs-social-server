@@ -1,4 +1,4 @@
-import { IUser } from '@modules/auth/interface';
+import { IUser } from "@modules/auth/interface";
 import CreateGroupDto from "./dtos/create_group";
 import GroupSchema from "./model";
 import { HttpException } from "@core/exceptions";
@@ -32,13 +32,13 @@ export default class GroupService {
   }
   public async getAllMembers(groupId: string): Promise<IUser[]> {
     const group = await GroupSchema.findById(groupId).exec();
-    if (!group) throw new HttpException(400, 'Group id is not exist');
+    if (!group) throw new HttpException(400, "Group id is not exist");
 
     const userIds = group.members.map((member) => {
       return member.user;
     });
 
-    const users = UserSchema.find({ _id: userIds }).select('-password').exec();
+    const users = UserSchema.find({ _id: userIds }).select("-password").exec();
     return users;
   }
   public async updateGroup(
@@ -140,7 +140,7 @@ export default class GroupService {
       group.members &&
       group.members.some((item: IMember) => item.user.toString() === userId)
     ) {
-      throw new HttpException(400, 'This user has already been in group');
+      throw new HttpException(400, "This user has already been in group");
     }
     group.member_requests = group.member_requests.filter(
       ({ user }) => user.toString() !== userId
@@ -151,17 +151,14 @@ export default class GroupService {
     await group.save();
     return group;
   }
-  public async addManager(
-    groupId: string,
-    request: any
-  ): Promise<IGroup> {
+  public async addManager(groupId: string, request: any): Promise<IGroup> {
     const group = await GroupSchema.findById(groupId).exec();
-    if (!group) throw new HttpException(400, 'Group id is not exist');
+    if (!group) throw new HttpException(400, "Group id is not exist");
 
     const user = await UserSchema.findById(request.userId)
-      .select('-password')
+      .select("-password")
       .exec();
-    if (!user) throw new HttpException(400, 'User id is not exist');
+    if (!user) throw new HttpException(400, "User id is not exist");
     if (
       group.managers &&
       group.managers.some(
@@ -170,7 +167,7 @@ export default class GroupService {
     ) {
       throw new HttpException(
         400,
-        'You has already been set manger to this group'
+        "You has already been set manger to this group"
       );
     }
 
@@ -185,22 +182,54 @@ export default class GroupService {
 
   public async removeManager(groupId: string, userId: string): Promise<IGroup> {
     const group = await GroupSchema.findById(groupId).exec();
-    if (!group) throw new HttpException(400, 'Group id is not exist');
+    if (!group) throw new HttpException(400, "Group id is not exist");
 
-    const user = await UserSchema.findById(userId).select('-password').exec();
-    if (!user) throw new HttpException(400, 'User id is not exist');
+    const user = await UserSchema.findById(userId).select("-password").exec();
+    if (!user) throw new HttpException(400, "User id is not exist");
 
     if (
       group.managers &&
-      group.managers.some((item: IManager) => item.user.toString() !== userId)
+      group.members.findIndex(
+        (item: IMember) => item.user.toString() === userId
+      ) == -1
     ) {
       throw new HttpException(
         400,
-        'You has not yet been manager of this group'
+        "You has not yet been manager of this group"
       );
     }
 
     group.managers = group.managers.filter(
+      ({ user }) => user.toString() !== userId
+    );
+
+    await group.save();
+    return group;
+  }
+  public async removeMember(groupId: string, userId: string): Promise<IGroup> {
+    const group = await GroupSchema.findById(groupId).exec();
+    if (!group) throw new HttpException(400, "Group id is not exist");
+
+    const user = await UserSchema.findById(userId).select("-password").exec();
+    if (!user) throw new HttpException(400, "User id is not exist");
+
+    if (
+      group.members &&
+      group.members.findIndex(
+        (item: IMember) => item.user.toString() === userId
+      ) == -1
+    ) {
+      throw new HttpException(400, "You has not yet been member of this group");
+    }
+
+    if (group.members.length == 1) {
+      throw new HttpException(
+        400,
+        "You are last member of this group. Cannot delete"
+      );
+    }
+
+    group.members = group.members.filter(
       ({ user }) => user.toString() !== userId
     );
 
