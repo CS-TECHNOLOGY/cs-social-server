@@ -31,14 +31,28 @@ export default class GroupsRoute implements ROUTE {
 
     this.router.delete(this.path + "/:id", this.groupsController.deleteGroup);
     this.router.post(
-      this.path + '/join/:id',
+      this.path + "/members/:id",
       authMiddleware,
       this.groupsController.joinGroup
     );
-
+    this.router.get(
+      this.path + "/members/:id",
+      this.groupsController.getAllMembers
+    );
     this.router.put(
-      this.path + '/:user_id/:group_id',
+      this.path + "/members/:user_id/:group_id",
       this.groupsController.approveJoinRequest
+    );
+    this.router.post(
+      this.path + '/managers/:id',
+      authMiddleware,
+      this.groupsController.addManager
+    );
+
+    this.router.delete(
+      this.path + '/managers/:group_id/:user_id',
+      authMiddleware,
+      this.groupsController.removeManager
     );
   }
 }
