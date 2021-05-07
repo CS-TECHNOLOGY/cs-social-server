@@ -2,7 +2,7 @@ import { HttpException } from "@core/exceptions";
 import { IPagination } from "@core/interfaces";
 import { UserSchema } from "@modules/users";
 import { PostSchema } from ".";
-import IPost, { IComment, ILike } from "./interface";
+import IPost, { IComment, ILike, IShare } from "./interface";
 
 export default class PostService {
   public async createPost(userId: string, postDto: any): Promise<IPost> {
@@ -152,5 +152,38 @@ export default class PostService {
     );
     await post.save();
     return post.comments;
+  }
+  public async sharePost(userId: string, postId: string): Promise<IShare[]> {
+    const post = await PostSchema.findById(postId).exec();
+    if (!post) {
+      throw new HttpException(400, "Post is not exist");
+    }
+    if (post.shares.some((share: IShare) => share.user.toString() === userId)) {
+      throw new HttpException(400, "Post already shared");
+    }
+    if (!post.shares){
+      post.shares = [];
+    }
+    post.shares.unshift({ user: userId });
+
+    await post.save();
+    return post.shares;
+  }
+
+  public async unSharePost(userId: string, postId: string): Promise<IShare[]> {
+    const post = await PostSchema.findById(postId).exec();
+    if (!post) {
+      throw new HttpException(400, "Post is not exist");
+    }
+    if (!post.shares.some((share: IShare) => share.user.toString() === userId)) {
+      throw new HttpException(400, "Post has not been shared");
+    }
+    if (!post.shares){
+      post.shares = [];
+    }
+    post.shares = post.shares.filter((share) => share.user.toString() !== userId);
+  
+    await post.save();
+    return post.shares;
   }
 }

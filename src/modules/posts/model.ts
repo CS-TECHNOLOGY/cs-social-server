@@ -26,6 +26,13 @@ const PostSchema = new mongoose.Schema({
       },
     },
   ],
+  shares: [
+    {
+      user: {
+        type: mongoose.Schema.Types.ObjectId,
+      },
+    },
+  ],
   comments: [
     {
       user: {
