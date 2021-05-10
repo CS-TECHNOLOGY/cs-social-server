@@ -35,4 +35,20 @@ export default class ConversationsController {
       next(error);
     }
   };
+  public getOneConversation = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const useIdTo: string = req.params.id;
+      const result = await this.conversationService.getOneConversation(
+        req.user.id,
+        useIdTo
+      );
+      res.status(200).json(result);
+    } catch (error) {
+      next(error);
+    }
+  };
 }

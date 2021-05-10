@@ -25,5 +25,10 @@ export default class ConversationsRoute implements ROUTE {
       authMiddleware,
       this.conversationController.getMyConversation
     );
+    this.router.get(
+      this.path + '/chat/:id',
+      authMiddleware,
+      this.conversationController.getOneConversation
+    );
   }
 }

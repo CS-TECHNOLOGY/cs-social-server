@@ -75,4 +75,24 @@ export default class ConversationService {
       .exec();
     return conversations;
   }
+  public async getOneConversation(
+    userId: string,
+    useIdTo: string
+  ): Promise<IConversation> {
+    const user = await UserSchema.findById(userId).select("-password").exec();
+    if (!user) throw new HttpException(400, "User id is not exist");
+
+    const conversations = await ConversationSchema.findOne({
+      $or: [
+        { $and: [{ user1: userId }, { user2: useIdTo }] },
+        { $and: [{ user1: useIdTo }, { user2: userId }] },
+      ],
+    })
+      .sort({ recent_date: -1 })
+      .exec();
+    if (!conversations) {
+      throw new HttpException(400, "Conversation id is not exist");
+    }
+    return conversations;
+  }
 }

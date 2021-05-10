@@ -35,7 +35,7 @@ export default class AuthService {
   private createToken(user: IUser): TokenData {
     const dataInToken: { id: string } = { id: user._id };
     const secret: string = process.env.JWT_TOKEN_SECRET!;
-    const expiresIn: number = 600;
+    const expiresIn: number = 60000;
     return {
       token: jws.sign(dataInToken, secret, { expiresIn: expiresIn }),
     };
